@@ -866,6 +866,172 @@ body.dark-mode .news-date {
 
 body.dark-mode .news-date {
     background: rgba(255, 255, 255, 0.1);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.floater {
+    position: absolute;
+    user-select: none;
+    /* Animation properties set via JS for randomness */
+}
+
+@keyframes gentleFloat {
+    0% {
+        transform: translateY(110vh) rotate(0deg);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: var(--target-opacity);
+    }
+
+    90% {
+        opacity: var(--target-opacity);
+    }
+
+    100% {
+        transform: translateY(-20vh) rotate(var(--rotation-end));
+        opacity: 0;
+    }
+}
+
+.remember-me-checkbox {
+    display: none;
+}
+
+.remember-me-checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    margin-right: 10px;
+    position: relative;
+    transition: all 0.2s ease;
+    background: var(--bg-white);
+}
+
+.remember-me-checkbox:checked+.remember-me-checkmark {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.remember-me-checkbox:checked+.remember-me-checkmark::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+}
+
+.profile-email {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Exam Date Page */
+.exam-date-container {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.countdown-display {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 24px 0;
+    line-height: 1.2;
+}
+
+.countdown-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* Support Page */
+.support-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.support-textarea {
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    font-family: inherit;
+    font-size: 15px;
+    background: var(--bg-subtle);
+    color: var(--text-main);
+    transition: all 0.2s;
+}
+
+.support-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: var(--bg-white);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* News Page */
+.news-card {
+    background: var(--bg-subtle);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.news-card:hover {
+    background: var(--bg-white);
+    border-color: var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.news-title {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 1rem;
+}
+
+.news-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 4px 8px;
+    border-radius: 99px;
+}
+
+.news-content {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+body.dark-mode .news-date {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Welcome Banner */
