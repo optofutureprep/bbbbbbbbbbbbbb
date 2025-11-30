@@ -606,72 +606,100 @@
             return;
         }
 
-        // Remove existing banner if any
+        // 1. Cleanup any existing banner to prevent duplicates
         const existing = document.getElementById('welcome-banner');
         if (existing) existing.remove();
 
-        const banner = document.createElement('div');
-        banner.id = 'welcome-banner';
+        // 2. Prepare Name
+        // Use saved profile name if available, otherwise use identifier
+        let displayName = localStorage.getItem('user_profile_name') || identifier || 'User';
 
-        // Determine greeting name - priority order:
-        // 1. Display name from profile (if set)
-        // 2. Passed identifier (could be email or name)
-        // 3. Extract name from email if identifier is an email
-        let displayName = localStorage.getItem('user_profile_name') || identifier;
-
-        // If displayName looks like an email, extract the part before @
-        if (displayName && displayName.includes('@')) {
+        if (displayName.includes('@')) {
             displayName = displayName.split('@')[0];
         }
+        // Capitalize first letter
+        if (displayName) {
+            displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+        }
 
+        // 3. Create DOM Structure
+        const banner = document.createElement('div');
+        banner.id = 'welcome-banner';
         banner.innerHTML = `
-            <div class="emoji-background" id="emoji-bg"></div>
-            <div class="welcome-content">
-                <h1 class="welcome-title">Welcome, <br><span class="highlight-name">${displayName}</span>! 🎉</h1>
-                <p class="welcome-subtitle">We're excited to have you on board.</p>
+            <div class="ambient-background" id="ambient-bg"></div>
+            <div class="welcome-card">
+                <div class="welcome-text-wrapper">
+                    <h1 class="welcome-title">Welcome, <br><span class="highlight-name">${escapeHtml(displayName)}</span></h1>
+                </div>
             </div>
         `;
         document.body.appendChild(banner);
 
-        // Generate emojis
-        const emojiBg = banner.querySelector('#emoji-bg');
-        const emojis = ['🚀', '⭐', '✨', '🎉', '🔥', '💫', '🌟', '💪', '🎓', '📚'];
+        // 4. Generate Floating Emojis (High Density)
+        const ambientBg = banner.querySelector('#ambient-bg');
+        const shapes = ['✨', '⚡️', '🚀', '🔮', '💎', '🧬', '⚛️', '🪐', '🌟', '💫', '🔥', '🎉'];
+        const particleCount = 200; // High density
 
-        for (let i = 0; i < 300; i++) {
-            const span = document.createElement('span');
-            span.className = 'floating-emoji';
-            span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        // Check if user prefers reduced motion
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            const left = Math.random() * 100;
-            const duration = 3 + Math.random() * 5; // 3-8s duration
-            const delay = (Math.random() * duration) * -1; // Negative delay to pre-warm animation
-            const size = 1 + Math.random() * 2;
+        if (!reduceMotion) {
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < particleCount; i++) {
+                const el = document.createElement('div');
+                el.className = 'floater';
+                el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
 
-            span.style.left = `${left}%`;
-            span.style.bottom = '-50px'; // Start slightly below screen
-            span.style.animationDelay = `${delay}s`;
-            span.style.animationDuration = `${duration}s`;
-            span.style.fontSize = `${size}rem`;
+                // Random Physics
+                const size = 0.5 + Math.random() * 2.5;
+                const left = Math.random() * 100;
+                const duration = 6 + Math.random() * 10;
+                const delay = (Math.random() * duration) * -1; // Start mid-air
+                const rotationEnd = -180 + Math.random() * 360;
+                const blurAmount = Math.random() * 8;
+                const opacity = 0.2 + Math.random() * 0.6;
 
-            emojiBg.appendChild(span);
+                // Set Styles
+                el.style.left = `${left}%`;
+                el.style.fontSize = `${size}rem`;
+                el.style.filter = `blur(${blurAmount}px)`;
+                el.style.setProperty('--target-opacity', opacity);
+                el.style.setProperty('--rotation-end', `${rotationEnd}deg`);
+                el.style.animation = `gentleFloat ${duration}s linear infinite`;
+                el.style.animationDelay = `${delay}s`;
+
+                fragment.appendChild(el);
+            }
+            ambientBg.appendChild(fragment);
         }
 
-        // Activate
+        // 5. Activate Animation (Next Frame)
         requestAnimationFrame(() => {
             banner.classList.add('active');
         });
 
-        // Auto dismiss
-        setTimeout(() => {
+        // 6. Dismiss Logic
+        const dismiss = () => {
+            if (!banner.parentNode) return; // Already removed
             banner.classList.remove('active');
-            setTimeout(() => banner.remove(), 500);
-        }, 4000);
-
-        // Click to dismiss
-        banner.onclick = () => {
-            banner.classList.remove('active');
-            setTimeout(() => banner.remove(), 500);
+            // Wait for CSS transition (0.4s) before removing from DOM
+            setTimeout(() => {
+                if (banner.parentNode) banner.remove();
+            }, 400);
         };
+
+        // Auto-close after 3 seconds
+        setTimeout(dismiss, 3000);
+
+        // Click to close immediately
+        banner.onclick = dismiss;
+    }
+
+    // Helper to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // Expose functions
